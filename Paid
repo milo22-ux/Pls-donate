@@ -221,6 +221,21 @@ game:GetService("RunService").RenderStepped:Connect(function()
         modifyPlayerHeads()
     end
 end)
+local Nospread = false
+local oldAccuracy = nil
+
+local No_Spread
+No_Spread = hookmetamethod(Random.new(), "__namecall",(function(self, ...)
+    local args = { ... }
+    if args[1] == -100 and args[2] == 100 and Nospread then
+        return No_Spread(self, -1, 1)
+    end
+    return No_Spread(self, ...)
+end))
+
+tab.newToggle("No Spread", "", false, function(toggleState)
+    Nospread = toggleState
+end)
 local tab = DrRayLibrary.newTab("Visuals", "ImageIdHere")
 -- Esp
 tab.newButton("Esp", "", function()
