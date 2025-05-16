@@ -1,4 +1,4 @@
-.fromRGB(255, 255, local modules = {}
+local modules = {}
 for _, v in ipairs(getgc(true)) do
     if typeof(v) == "function" and islclosure(v) then
         local src = debug.info(v, "s")
