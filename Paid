@@ -36,7 +36,8 @@ local tab = DrRayLibrary.newTab("Combat", "ImageIdHere")
 tab.newButton("silent aim", "", function()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/milo22-ux/Ak.lol/refs/heads/main/Loadstring%20obfuscated",true))()
 end)
--- hitbox
+-- hitboxs
+tab.newButton("Hitbox", "will auto make it 10", function()
 local old = Vector3.new(1.672248125076294, 0.835624098777771, 0.835624098777771)
 local playermodel = getupvalues(getrenv()._G.modules.Player.GetPlayerModel)[1]
 local hitbox = true
@@ -55,17 +56,15 @@ game:GetService("RunService").RenderStepped:Connect(function()
         end
     end
 end)
---
-tab.newToggle("Hitbox toggle", "", false, function(toggleState)
-    hitbox = toggleState
 end)
+--
 local tab = DrRayLibrary.newTab("Visuals", "ImageIdHere")
 -- Esp
 tab.newButton("Esp", "", function()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/milo22-ux/Trident-survival-stuff/refs/heads/main/Esp",true))()
 end)
 -- chams
-tab.newButton("Esp", "", function()
+tab.newButton("Esp", "chams", function()
 local function createHighlight(object)
     if not object:FindFirstChild("Highlight") then
         local highlight = Instance.new("Highlight")
@@ -623,7 +622,8 @@ mt.__index = newcclosure(function(self, key)
     end
     return oldindex(self, key)
 end)
-setreadonly(mt, true)
+
+setreadonly(mt, true
 
 tab.newToggle("Invisible", "Toggle invisibility", false, function(toggleState)
     antiaim.invisible = toggleState
