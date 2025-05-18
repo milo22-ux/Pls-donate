@@ -36,299 +36,74 @@ local tab = DrRayLibrary.newTab("Combat", "ImageIdHere")
 tab.newButton("silent aim", "", function()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/milo22-ux/Ak.lol/refs/heads/main/Loadstring%20obfuscated",true))()
 end)
-tab.newToggle("Toggle hbe", "Toggle hbe (hitbox expander)", true, function(toggleState)
-    Hitbox = toggleState 
-end) 
-tab.newSlider("hitbox size", "hitbox expander slider", 10, false, function(num)
-    headsize = num
-end)
---
-local function modifyPlayerHeads()
-    for i, v in next, game.Workspace:GetChildren() do
-        if v:IsA("Model") and v:FindFirstChild("Head") then
-            local head = v.Head
-            if head then
-                local success, _ = pcall(function()
-                    head.Size = Vector3.new(headsize, headsize, headsize)
-                    head.Transparency = 0.5
-                    head.CanCollide = false 
-                end)
-                if not success then
-                    warn("Failed to modify head for player:", v.Name)
-                end
-            end
-        end
-    end
-end
+-- hitbox
+local old = Vector3.new(1.672248125076294, 0.835624098777771, 0.835624098777771)
+local playermodel = getupvalues(getrenv()._G.modules.Player.GetPlayerModel)[1]
+local hitbox = true
+local sleepcheck = true
 --
 game:GetService("RunService").RenderStepped:Connect(function()
-    if Hitbox then
-        modifyPlayerHeads()
+    for i, v in pairs(playermodel) do
+        if hitbox and (not sleepcheck or not v.sleeping) then
+            v.model.Head.Size = Vector3.new(9, 9, 9)
+            v.model.Head.Transparency = 0.5
+            v.model.Head.CanCollide = false
+        else
+            v.model.Head.Size = old
+            v.model.Head.Transparency = 0
+            v.model.Head.CanCollide = true
+        end
     end
+end)
+--
+tab.newToggle("Hitbox toggle", "", false, function(toggleState)
+    hitbox = toggleState
 end)
 local tab = DrRayLibrary.newTab("Visuals", "ImageIdHere")
 -- Esp
 tab.newButton("Esp", "", function()
-wait(0.1)
-repeat
-    wait(0.1)
-until game:IsLoaded()
-
-wait(0.5)
-
-local Cache = {}
-local Cache2 = {}
-local CornerBoxes = true
-local WeaponType = true
-local Names = true
-local Bar = true
-local MaxDistance = 1500
-local PlayerList = debug.getupvalue(modules.Player3.GetPlayerModel, 1)
---
-local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui") if playerGui:FindFirstChild("XDEDEADEDE") then playerGui.XDEDEADEDE:Destroy() end
---
-local Beamed = { Varis = { RunService = game:GetService("RunService"), Camera = game:GetService("Workspace").CurrentCamera, Lighting = game:GetService("Lighting"), UserInput = game:GetService("UserInputService"), LogService = game:GetService("LogService"), }, }
---
-local BeamVar = Beamed.Varis
-local VisibilityState = {}
-local BarValue = 100 
---
-local function CreateClass(Class, Properties) local ClassInt = typeof(Class) == "string" and Instance.new(Class) or Class for Property, Value in next, Properties do ClassInt[Property] = Value end return ClassInt end
---
-local XDEDEADEDE = CreateClass("ScreenGui", {Parent = playerGui, Name = "XDEDEADEDE"})
---
-local function DupeCheck(name) local existingESP = XDEDEADEDE:FindFirstChild(name) if existingESP then existingESP:Destroy() end end
---
-local function IsSleeping(model) if model and model:FindFirstChild("AnimationController") and model.AnimationController:FindFirstChild("Animator") then for _, v in pairs(model.AnimationController.Animator:GetPlayingAnimationTracks()) do if v.Animation.AnimationId == "rbxassetid://13280887764" then return true end end end return false end
---
-local function Calc(d, maxDistance) return 4 - math.clamp(d / (maxDistance or 200), 0, 1) * 3 end
---
-local function ESP(playertable) if not playertable then return end local model = playertable.model local humanoidRootPart = model:FindFirstChild("HumanoidRootPart") if not humanoidRootPart then return end
-    --
-    DupeCheck(model.Name)
-    --
-    local function CreateCornerBox(name, position, size, anchorPoint)
-        return CreateClass("Frame", {Parent = XDEDEADEDE, Name = name, BackgroundColor3 = Color3.fromRGB(161,0,219), Position = position, Size = size, AnchorPoint = anchorPoint, Visible = CornerBoxes, ZIndex = 10})
-    end
-    --
-    local function CreateBar(name, position, size)
-        return CreateClass("Frame", {Parent = XDEDEADEDE, Name = name, BackgroundColor3 = Color3.fromRGB(255, 255, 255), Position = position, Size = size, Visible = Bar, ZIndex = 11})
-    end
-    --
-    local function CreateBarBackRound(name, position, size)
-        return CreateClass("Frame", {Parent = XDEDEADEDE, Name = name, BackgroundColor3 = Color3.fromRGB(0, 0, 0), Position = position, Size = size, Visible = Bar, ZIndex = 9})
-    end
-    --
-    local LeftTop = CreateCornerBox("LeftTop", UDim2.new(0, 0, 0, 0), UDim2.new(0, 0, 0, 1), Vector2.new(0, 0))
-    local LeftSide = CreateCornerBox("LeftSide", UDim2.new(0, 0, 0, 0), UDim2.new(0, 1, 0, 0), Vector2.new(0, 0))
-    local RightTop = CreateCornerBox("RightTop", UDim2.new(0, 0, 0, 0), UDim2.new(0, 0, 0, 1), Vector2.new(0, 0))
-    local RightSide = CreateCornerBox("RightSide", UDim2.new(0, 0, 0, 0), UDim2.new(0, 1, 0, 0), Vector2.new(0, 0))
-    local BottomSide = CreateCornerBox("BottomSide", UDim2.new(0, 0, 0, 0), UDim2.new(0, 1, 0, 0), Vector2.new(0, 0))
-    local BottomDown = CreateCornerBox("BottomDown", UDim2.new(0, 0, 0, 0), UDim2.new(0, 0, 0, 1), Vector2.new(0, 0))
-    local BottomRightSide = CreateCornerBox("BottomRightSide", UDim2.new(0, 0, 0, 0), UDim2.new(0, 1, 0, 0), Vector2.new(0, 0))
-    local BottomRightDown = CreateCornerBox("BottomRightDown", UDim2.new(0, 0, 0, 0), UDim2.new(0, 0, 0, 1), Vector2.new(0, 0))
-    local NameTag = CreateClass("TextLabel", {Parent = XDEDEADEDE, Name = "NameTag", BackgroundTransparency = 1, Font = Enum.Font.Code, TextColor3 = Color3.fromRGB(161,0,219), TextStrokeTransparency = 0, TextSize = 11, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 0), Visible = Names})
-    local WeaponText = CreateClass("TextLabel", { Parent = XDEDEADEDE, Name = "WeaponText", BackgroundTransparency = 1, Font = Enum.Font.Code, TextColor3 = Color3.fromRGB(161,0,219), TextStrokeTransparency = 0, TextSize = 11, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 20), Visible = WeaponType})
-    local BarBackRound = CreateBarBackRound("BarBackRound", UDim2.new(0, 0, 0, 0), UDim2.new(0, 8, 0, 100))
-    local Bar = CreateBar("Bar", UDim2.new(0, 0, 0, 0), UDim2.new(0, 0, 0, 0))
-    local UIGradient = CreateClass("UIGradient", {Parent = Bar, Name = "UIGradient", Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(9, 255, 0)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 238, 0)), ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 4))}), Rotation = 90})
-    local Connection
-    Connection = BeamVar.RunService.RenderStepped:Connect(function()
-        if model and model.Parent and humanoidRootPart and humanoidRootPart.Parent then
-            if IsSleeping(model) then
-                LeftTop.Visible = false
-                LeftSide.Visible = false
-                BottomSide.Visible = false
-                BottomDown.Visible = false
-                RightTop.Visible = false
-                RightSide.Visible = false
-                BottomRightSide.Visible = false
-                BottomRightDown.Visible = false
-                NameTag.Visible = false
-                WeaponText.Visible = false
-                BarBackRound.Visible = false
-                Bar.Visible = false
-                return
-            end
-            --
-            local Pos, OnScreen = BeamVar.Camera:WorldToScreenPoint(humanoidRootPart.Position)
-            local Size = humanoidRootPart.Size.Y
-            local distance = math.floor((BeamVar.Camera.CFrame.Position - humanoidRootPart.Position).magnitude)
-            local scaleFactor = 12 / (Pos.Z * math.tan(math.rad(BeamVar.Camera.FieldOfView * 0.5)) * 2) * 100
-            local w, h = 3 * scaleFactor, 4.5 * scaleFactor
-            local HealthWidth = Calc(distance)
-            local WeaponFound = playertable.equippedItem and playertable.equippedItem.id or "None"
-            --
-            if OnScreen then
-                LeftTop.Position = UDim2.new(0, Pos.X - w / 2, 0, Pos.Y - h / 2)
-                LeftTop.Size = UDim2.new(0, w / 5, 0, 1)
-
-                LeftSide.Position = UDim2.new(0, Pos.X - w / 2, 0, Pos.Y - h / 2)
-                LeftSide.Size = UDim2.new(0, 1, 0, h / 5)
-
-                BottomSide.Position = UDim2.new(0, Pos.X - w / 2, 0, Pos.Y + h / 2 - h / 5)
-                BottomSide.Size = UDim2.new(0, 1, 0, h / 5)
-
-                BottomDown.Position = UDim2.new(0, Pos.X - w / 2, 0, Pos.Y + h / 2)
-                BottomDown.Size = UDim2.new(0, w / 5, 0, 1)
-
-                RightTop.Position = UDim2.new(0, Pos.X + w / 2 - w / 5, 0, Pos.Y - h / 2)
-                RightTop.Size = UDim2.new(0, w / 5, 0, 1)
-
-                RightSide.Position = UDim2.new(0, Pos.X + w / 2 - 1, 0, Pos.Y - h / 2)
-                RightSide.Size = UDim2.new(0, 1, 0, h / 5)
-
-                BottomRightSide.Position = UDim2.new(0, Pos.X + w / 2 - 1, 0, Pos.Y + h / 2 - h / 5)
-                BottomRightSide.Size = UDim2.new(0, 1, 0, h / 5)
-
-                BottomRightDown.Position = UDim2.new(0, Pos.X + w / 2 - w / 5, 0, Pos.Y + h / 2)
-                BottomRightDown.Size = UDim2.new(0, w / 5, 0, 1)
-
-                NameTag.Position = UDim2.new(0, Pos.X, 0, Pos.Y - h / 2 - 20)
-                WeaponText.Position = UDim2.new(0, Pos.X, 0, Pos.Y + h / 2 + 3)
-
-                BarBackRound.Position = UDim2.new(0, Pos.X - w / 2 - 10, 0, Pos.Y - h / 2)
-                BarBackRound.Size = UDim2.new(0, HealthWidth, 0, h)
-
-                local barHeight = (BarValue / 100) * h
-                Bar.Position = UDim2.new(0, Pos.X - w / 2 - 10, 0, Pos.Y + h / 2 - barHeight)
-                Bar.Size = UDim2.new(0, HealthWidth, 0, barHeight)      
-                
-                local username = model:FindFirstChild("Head") and model.Head:FindFirstChild("Nametag") and model.Head.Nametag.tag.Text or "Player"
-                NameTag.Text = (username or "Player") .. " [" .. distance .. "s]"
-
-                WeaponText.Text = "[" .. (WeaponFound:upper() or "Hands") .. "]"
-
-                local color = VisibilityState[model] and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(161, 0, 219)
-
-                LeftTop.BackgroundColor3 = color
-                LeftSide.BackgroundColor3 = color
-                RightTop.BackgroundColor3 = color
-                RightSide.BackgroundColor3 = color
-                BottomSide.BackgroundColor3 = color
-                BottomDown.BackgroundColor3 = color
-                BottomRightSide.BackgroundColor3 = color
-                BottomRightDown.BackgroundColor3 = color
-                NameTag.TextColor3 = color
-                WeaponText.TextColor3 = color
-
-                LeftTop.Visible = CornerBoxes
-                LeftSide.Visible = CornerBoxes
-                RightTop.Visible = CornerBoxes
-                RightSide.Visible = CornerBoxes
-                BottomSide.Visible = CornerBoxes
-                BottomDown.Visible = CornerBoxes
-                BottomRightSide.Visible = CornerBoxes
-                BottomRightDown.Visible = CornerBoxes
-                NameTag.Visible = Names
-                WeaponText.Visible = WeaponType
-                BarBackRound.Visible = Bar
-                Bar.Visible = Bar
-            else
-                LeftTop.Visible = false
-                LeftSide.Visible = false
-                BottomSide.Visible = false
-                BottomDown.Visible = false
-                RightTop.Visible = false
-                RightSide.Visible = false
-                BottomRightSide.Visible = false
-                BottomRightDown.Visible = false
-                NameTag.Visible = false
-                WeaponText.Visible = false
-                BarBackRound.Visible = false
-                Bar.Visible = false
-            end
-        else
-            LeftTop.Visible = false
-            LeftSide.Visible = false
-            RightTop.Visible = false
-            RightSide.Visible = false
-            BottomSide.Visible = false
-            BottomDown.Visible = false
-            BottomRightSide.Visible = false
-            BottomRightDown.Visible = false
-            NameTag.Visible = false
-            WeaponText.Visible = false
-            BarBackRound.Visible = false
-            Bar.Visible = false
-        end
-
-        if not model then
-            LeftTop:Destroy()
-            LeftSide:Destroy()
-            RightTop:Destroy()
-            RightSide:Destroy()
-            BottomSide:Destroy()
-            BottomDown:Destroy()
-            BottomRightSide:Destroy()
-            BottomRightDown:Destroy()
-            NameTag:Destroy()
-            WeaponText:Destroy()
-            BarBackRound:Destroy()
-            Bar:Destroy()
-            if Connection then
-                Connection:Disconnect()
-            end
-        end
-    end)
-end
-
-local barValueIncrementTime = 5
-local resetBarValueTime = 1
-local lastIncrementTime = 0
-local lastResetTime = 0
-
-local function IncrementBarValue()
-    if BarValue < 100 then
-        BarValue = math.min(BarValue + 1, 100)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/milo22-ux/Trident-survival-stuff/refs/heads/main/Esp",true))()
+end)
+-- chams
+tab.newButton("Esp", "", function()
+local function createHighlight(object)
+    if not object:FindFirstChild("Highlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.Parent = object
+        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+        highlight.FillTransparency = 0.5
+        highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+        highlight.OutlineTransparency = 0.5
     end
 end
-
-local function ResetLowBarValue()
-    if BarValue <= 1 then
-        BarValue = 100
+--
+for _, object in pairs(workspace:GetChildren()) do
+    if object:FindFirstChild("Head") then
+        createHighlight(object)
     end
 end
-
-local function onLogMessage(message)
-    local HealthAfr = message:match("->(%d+%.?%d*)hp")
-    if HealthAfr then
-        BarValue = math.floor(tonumber(HealthAfr))
-    end
-end
-
-BeamVar.LogService.MessageOut:Connect(onLogMessage)
-
-game:GetService("RunService").Heartbeat:Connect(function()
-    local currentTime = tick()
-    if currentTime - lastIncrementTime >= barValueIncrementTime then
-        IncrementBarValue()
-        lastIncrementTime = currentTime
-    end
-    if currentTime - lastResetTime >= resetBarValueTime then
-        ResetLowBarValue()
-        lastResetTime = currentTime
+--
+workspace.ChildAdded:Connect(function(child)
+    if child:FindFirstChild("Head") then
+        createHighlight(child)
     end
 end)
-
-local Cache = {}
-for i,v in pairs(PlayerList) do
-    if v.model:FindFirstChild("HumanoidRootPart") and not table.find(Cache, v) then
-        table.insert(Cache, v)
-        ESP(v)
-    end
-end
-
-game:GetService("Workspace").ChildAdded:Connect(function()
-    task.delay(1.5, function()
-        for i,v in pairs(PlayerList) do
-            if v.model:FindFirstChild("HumanoidRootPart") and not table.find(Cache, v) then
-                table.insert(Cache, v)
-                ESP(v)
-            end
-        end
-    end)
 end)
+-- no spread
+local Nospread = false
+local oldAccuracy = nil
+
+local No_Spread
+No_Spread = hookmetamethod(Random.new(), "__namecall",(function(self, ...)
+    local args = { ... }
+    if args[1] == -100 and args[2] == 100 and Nospread then
+        return No_Spread(self, -1, 1)
+    end
+    return No_Spread(self, ...)
+end))
+
+tab.newToggle("No Spread", "", false, function(toggleState)
+    Nospread = toggleState
 end)
 -- Ambient
 local Lighting = game:GetService("Lighting")
@@ -460,7 +235,7 @@ tab.newToggle("Xray toggle", "", false, function(toggleState)
         end
     end
 end)
-    local tab = DrRayLibrary.newTab("extra", "ImageIdHere")
+local tab = DrRayLibrary.newTab("extra", "ImageIdHere")
 local ScreenGui = Instance.new("ScreenGui")
 local AutoRunButton = Instance.new("TextButton")
 local Frame = Instance.new("Frame")
@@ -562,7 +337,10 @@ local function createDraggableButton(name, position, callback)
     game:GetService("UserInputService").InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             local delta = input.Position - dragStart
-            button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            button.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
         end
     end)
 
@@ -570,7 +348,6 @@ local function createDraggableButton(name, position, callback)
 
     return button
 end
-
 
 local lootButton = createDraggableButton("Loot All", UDim2.new(0, 100, 1, -100), function()
     for i = 1, 20 do
@@ -846,44 +623,97 @@ mt.__index = newcclosure(function(self, key)
     end
     return oldindex(self, key)
 end)
-
 setreadonly(mt, true)
 
 tab.newToggle("Invisible", "Toggle invisibility", false, function(toggleState)
     antiaim.invisible = toggleState
 end)
-
--- print the name
-for _, line in ipairs({
-  "█████████████",
-  "█▄─▄▄─█░▄▄░▄█",
-  "██─▄█▀██▀▄█▀█",
-  "▀▄▄▄▄▄▀▄▄▄▄▄▀",
-  "█████████████████████████████████████████████████",
-  "█▄─▄─▀██▀▄─██▄─▀█▄─▄█─▄▄▄▄█████▄─▄▄─█▄─▀─▄█▄─▄▄─█",
-  "██─▄─▀██─▀─███─█▄▀─██▄▄▄▄─█░░███─▄█▀██▀─▀███─▄█▀█",
-  "▀▄▄▄▄▀▀▄▄▀▄▄▀▄▄▄▀▀▄▄▀▄▄▄▄▄▀▄▄▀▀▄▄▄▄▄▀▄▄█▄▄▀▄▄▄▄▄▀"
-}) do
-    warn(line)
-end
-local TextLabel = Drawing.new("Text")
-TextLabel.Text = "Ezbans.exe - V2 Paid "
-TextLabel.Size = 24
-TextLabel.Center = true
-TextLabel.Outline = true
-TextLabel.Visible = true
-
-local viewportSize = game:GetService("Workspace").CurrentCamera.ViewportSize
-TextLabel.Position = Vector2.new(viewportSize.X / 2, 15)
-
+local tab = DrRayLibrary.newTab("Extra 3", "ImageIdHere")
+-- Crosshair
+tab.newButton("crosshair", "Nazi", function()
 local RunService = game:GetService("RunService")
-local hue = 0
+local camera = workspace.CurrentCamera
+local center = camera.ViewportSize / 2
+local angle = 0
+local size = 15
+local armLength = 15
+local thickness = 2
+
+local lines = {}
+for i = 1, 8 do
+    local line = Drawing.new("Line")
+    line.Thickness = thickness
+    line.Color = Color3.new(1, 1, 1)
+    line.Visible = true
+    lines[i] = line
+end
+
+local function rotate(x, y, a)
+    local cos = math.cos(a)
+    local sin = math.sin(a)
+    return x * cos - y * sin, x * sin + y * cos
+end
+
+local function HSVToRGB(h, s, v)
+    local c = v * s
+    local x = c * (1 - math.abs((h * 6) % 2 - 1))
+    local m = v - c
+
+    local r, g, b = 0, 0, 0
+
+    if 0 <= h and h < 1/6 then
+        r, g, b = c, x, 0
+    elseif 1/6 <= h and h < 2/6 then
+        r, g, b = x, c, 0
+    elseif 2/6 <= h and h < 3/6 then
+        r, g, b = 0, c, x
+    elseif 3/6 <= h and h < 4/6 then
+        r, g, b = 0, x, c
+    elseif 4/6 <= h and h < 5/6 then
+        r, g, b = x, 0, c
+    else
+        r, g, b = c, 0, x
+    end
+
+    return Color3.new(r + m, g + m, b + m)
+end
 
 RunService.RenderStepped:Connect(function()
-    hue = (hue + 0.01) % 1
-    local color = Color3.fromHSV(hue, 1, 1)
-    TextLabel.Color = color
-    
-    local newViewportSize = game:GetService("Workspace").CurrentCamera.ViewportSize
-    TextLabel.Position = Vector2.new(newViewportSize.X / 2, 15)
+    angle += math.rad(3)
+    local cx, cy = center.X, center.Y
+
+    local baseLines = {
+        { 0, -size, 0, size },
+        { -size, 0, size, 0 },
+    }
+
+    local armLines = {
+        { 0, -size, armLength, -size },
+        { size, 0, size, armLength },
+        { 0, size, -armLength, size },
+        { -size, 0, -size, -armLength }
+    }
+
+    local hue = (tick() * 0.1) % 1
+    local color = HSVToRGB(hue, 1, 1)
+
+    for i = 1, 2 do
+        local x1, y1 = rotate(baseLines[i][1], baseLines[i][2], angle)
+        local x2, y2 = rotate(baseLines[i][3], baseLines[i][4], angle)
+        lines[i].From = Vector2.new(cx + x1, cy + y1)
+        lines[i].To = Vector2.new(cx + x2, cy + y2)
+        lines[i].Color = color
+    end
+
+    for i = 1, 4 do
+        local index = i + 2
+        local x1, y1 = rotate(armLines[i][1], armLines[i][2], angle)
+        local x2, y2 = rotate(armLines[i][3], armLines[i][4], angle)
+        lines[index].From = Vector2.new(cx + x1, cy + y1)
+        lines[index].To = Vector2.new(cx + x2, cy + y2)
+        lines[index].Color = color
+    end
 end)
+end)
+-- print the name
+loadstring(game:HttpGet("https://raw.githubusercontent.com/milo22-ux/Trident-survival-stuff/refs/heads/main/Print%20name",true))()
