@@ -623,7 +623,7 @@ mt.__index = newcclosure(function(self, key)
     return oldindex(self, key)
 end)
 
-setreadonly(mt, true
+setreadonly(mt, true)
 
 tab.newToggle("Invisible", "Toggle invisibility", false, function(toggleState)
     antiaim.invisible = toggleState
