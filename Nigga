@@ -1,6 +1,5 @@
 local HttpService = game:GetService("HttpService")
 
--- Check if key exists
 if not getgenv().key or getgenv().key == "" then
     warn("❌ No key set! Use getgenv().key = 'YOUR-KEY'")
     return
@@ -8,15 +7,11 @@ end
 
 local hwid = gethwid()
 local api_url = "https://raw.githubusercontent.com/milo22-ux/New-whitelist/refs/heads/main/vaildate.php?token=GHSAT0AAAAAADDD7PBF5AOHRBVQKIGJXGJE2E5GYWQ&key="..getgenv().key.."&hwid="..hwid
-
 local success, result = pcall(function()
     return HttpService:GetAsync(api_url)
 end)
-
 if not success then
     warn("❌ Failed to reach server.")
     return
 end
-
--- Execute PHP output (Lua code)
 loadstring(result)()
