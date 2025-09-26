@@ -48,6 +48,6 @@ if #key < 5 or #hwid < 5 then error("Invalid key or HWID length") end
 
 print("✔️ Whitelist verified")
 wait(1)
-loadstring(game:HttpGet("https://raw.githubusercontent.com/milo22-ux/V5-paid/refs/heads/main/V5%20paid", true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/milo22-ux/Script/refs/heads/main/V%E2%9C%A7RTX%20HUB%E2%98%86", true))()
 end
 runChecks()
